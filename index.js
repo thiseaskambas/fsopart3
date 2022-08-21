@@ -98,5 +98,5 @@ const unknownEndpoint = (req, res) => {
 app.use(unknownEndpoint);
 
 app.listen(PORT, () => {
-  console.log(`Phonebook app listening on port ${port}`);
+  console.log(`Phonebook app listening on port ${PORT}`);
 });
