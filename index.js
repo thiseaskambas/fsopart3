@@ -1,9 +1,12 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 const app = express();
-const port = 3001;
+const PORT = process.env.PORT || 3001;
 
+app.use(cors());
 app.use(express.json());
+app.use(express.static("build"));
 morgan.token("postbody", (req, res) => {
   return JSON.stringify(req.body);
 });
@@ -94,6 +97,6 @@ const unknownEndpoint = (req, res) => {
 
 app.use(unknownEndpoint);
 
-app.listen(port, () => {
+app.listen(PORT, () => {
   console.log(`Phonebook app listening on port ${port}`);
 });
