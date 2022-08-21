@@ -19,5 +19,8 @@
   "homepage": "https://github.com/thiseaskambas/fsopart3#readme",
   "dependencies": {
     "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "morgan": "^1.10.0"
   }
 }
