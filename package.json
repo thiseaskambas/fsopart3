@@ -1,0 +1,23 @@
+{
+  "name": "fsopart3",
+  "version": "1.0.0",
+  "description": "part3 of FSO",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thiseaskambas/fsopart3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thiseaskambas/fsopart3/issues"
+  },
+  "homepage": "https://github.com/thiseaskambas/fsopart3#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
