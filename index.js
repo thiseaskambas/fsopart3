@@ -1,5 +1,5 @@
 const express = require("express");
-const morgan = require("morgan");
+// const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -10,11 +10,11 @@ app.use(express.static("build"));
 morgan.token("postbody", (req, res) => {
   return JSON.stringify(req.body);
 });
-app.use(
-  morgan(
-    ":method :url :status :res[content-length] - :response-time ms :postbody"
-  )
-);
+// app.use(
+//   morgan(
+//     ":method :url :status :res[content-length] - :response-time ms :postbody"
+//   )
+// );
 
 let phonebook = [
   {
