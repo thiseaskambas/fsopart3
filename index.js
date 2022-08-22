@@ -47,6 +47,7 @@ app.get("/api/persons/:id", (req, res) => {
 
 app.delete("/api/persons/:id", (req, res) => {
   Contact.findByIdAndDelete(req.params.id).then(() => {
+    res.status(204).end();
     console.log("deleted!");
   });
 });
