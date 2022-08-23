@@ -6,69 +6,60 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("build"));
 
-let phonebook = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
-
-app.get("/api/persons", (req, res) => {
+app.get("/api/persons", (req, res, next) => {
   Contact.find({})
     .then((contacts) => {
       res.json(contacts);
     })
-    .catch((err) => console.log(err));
+    .catch((err) => next(err));
 });
 
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", (req, res, next) => {
   Contact.findById(req.params.id)
     .then((found) => {
-      res.json(found);
+      if (found) {
+        res.json(found);
+      } else {
+        res.status(404).end();
+      }
     })
-    .catch((err) => console.log(err));
+    .catch((err) => next(err));
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  Contact.findByIdAndDelete(req.params.id).then(() => {
-    res.status(204).end();
-    console.log("deleted!");
+app.delete("/api/persons/:id", (req, res, next) => {
+  Contact.findByIdAndDelete(req.params.id)
+    .then(() => {
+      res.status(204).end();
+      console.log("deleted!");
+    })
+    .catch((err) => next(err));
+});
+
+app.put("/api/persons/:id", (req, res, next) => {
+  Contact.findByIdAndUpdate(
+    req.params.id,
+    { number: req.body.number },
+    { new: true }
+  )
+    .then((updatedContact) => {
+      console.log(updatedContact);
+      res.json(updatedContact);
+    })
+    .catch((error) => next(error));
+});
+
+app.get("/info", (req, res, next) => {
+  Contact.countDocuments({}).then((count) => {
+    res.send(`Phonebook has info for ${count} people.
+    ${new Date()}
+    `);
   });
-});
-
-app.get("/info", (req, res) => {
-  res.send(`Phonebook has info for ${phonebook.length} people.
-   ${new Date()}
-   `);
 });
 
 app.post("/api/persons", (req, res) => {
   if (!req.body.name.trim() || !req.body.number.trim()) {
     return res.status(400).json({ error: "name or number missing" });
   }
-  // const alreadyExistingName = phonebook.find(
-  //   (el) => el.name.toLowerCase() === req.body.name.toLowerCase()
-  // );
-
-  // if (alreadyExistingName) {
-  //   return res.status(400).json({ error: "person already exists" });
-  // }
   const newContact = new Contact({
     name: req.body.name,
     number: req.body.number,
@@ -79,7 +70,7 @@ app.post("/api/persons", (req, res) => {
       console.log("contact saved : ", result);
       res.json(result);
     })
-    .catch((err) => console.log(err));
+    .catch((err) => next(err));
 });
 
 const unknownEndpoint = (req, res) => {
@@ -87,6 +78,19 @@ const unknownEndpoint = (req, res) => {
 };
 
 app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+  console.error("from error handler  :  ", error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
+// this has to be the last loaded middleware.
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
