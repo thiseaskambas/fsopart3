@@ -1,98 +1,98 @@
-const express = require("express");
-const cors = require("cors");
+const express = require('express');
+const cors = require('cors');
 const app = express();
-const Contact = require("./models/contact");
+const Contact = require('./models/contact');
 app.use(cors());
 app.use(express.json());
-app.use(express.static("build"));
+app.use(express.static('build'));
 
-app.get("/api/persons", (req, res, next) => {
+app.get('/api/persons', (req, res, next) => {
   Contact.find({})
-    .then((contacts) => {
+    .then(contacts => {
       res.json(contacts);
     })
-    .catch((err) => next(err));
+    .catch(err => next(err));
 });
 
-app.get("/api/persons/:id", (req, res, next) => {
+app.get('/api/persons/:id', (req, res, next) => {
   Contact.findById(req.params.id)
-    .then((found) => {
+    .then(found => {
       if (found) {
         res.json(found);
       } else {
         res.status(404).end();
       }
     })
-    .catch((err) => next(err));
+    .catch(err => next(err));
 });
 
-app.delete("/api/persons/:id", (req, res, next) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Contact.findByIdAndDelete(req.params.id)
     .then(() => {
       res.status(204).end();
-      console.log("deleted!");
+      console.log('deleted!');
     })
-    .catch((err) => next(err));
+    .catch(err => next(err));
 });
 
-app.put("/api/persons/:id", (req, res, next) => {
+app.put('/api/persons/:id', (req, res, next) => {
   Contact.findByIdAndUpdate(
     req.params.id,
     { number: req.body.number },
     { new: true, runValidators: true }
   )
-    .then((updatedContact) => {
+    .then(updatedContact => {
       console.log(updatedContact);
       res.json(updatedContact);
     })
-    .catch((error) => next(error));
+    .catch(error => next(error));
 });
 
-app.get("/info", (req, res, next) => {
-  Contact.countDocuments({}).then((count) => {
+app.get('/info', (req, res, next) => {
+  Contact.countDocuments({}).then(count => {
     res.send(`Phonebook has info for ${count} people.
     ${new Date()}
     `);
   });
 });
 
-app.post("/api/persons", (req, res, next) => {
+app.post('/api/persons', (req, res, next) => {
   if (!req.body.name.trim() || !req.body.number.trim()) {
-    return res.status(400).json({ error: "name or number missing" });
+    return res.status(400).json({ error: 'name or number missing' });
   }
-  Contact.findOne({ name: req.body.name }).then((found) => {
+  Contact.findOne({ name: req.body.name }).then(found => {
     if (found) {
       return res
         .status(400)
-        .json({ message: "contact with this name already exists" });
+        .json({ message: 'contact with this name already exists' });
     }
   });
 
   const newContact = new Contact({
     name: req.body.name,
-    number: req.body.number,
+    number: req.body.number
   });
   newContact
     .save()
-    .then((result) => {
-      console.log("contact saved : ", result);
+    .then(result => {
+      console.log('contact saved : ', result);
       res.json(result);
     })
-    .catch((err) => next(err));
+    .catch(err => next(err));
 });
 
 const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: "unknown endpoint" });
+  res.status(404).send({ error: 'unknown endpoint' });
 };
 
 app.use(unknownEndpoint);
 
 const errorHandler = (error, request, response, next) => {
-  console.error("from error handler  :  ", error.message);
+  console.error('from error handler  :  ', error.message);
 
-  if (error.name === "CastError") {
-    return response.status(400).send({ error: "malformatted id" });
-  } else if (error.name === "ValidationError") {
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' });
+  } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message });
   }
 
