@@ -39,7 +39,7 @@ app.put("/api/persons/:id", (req, res, next) => {
   Contact.findByIdAndUpdate(
     req.params.id,
     { number: req.body.number },
-    { new: true }
+    { new: true, runValidators: true }
   )
     .then((updatedContact) => {
       console.log(updatedContact);
@@ -56,10 +56,18 @@ app.get("/info", (req, res, next) => {
   });
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   if (!req.body.name.trim() || !req.body.number.trim()) {
     return res.status(400).json({ error: "name or number missing" });
   }
+  Contact.findOne({ name: req.body.name }).then((found) => {
+    if (found) {
+      return res
+        .status(400)
+        .json({ message: "contact with this name already exists" });
+    }
+  });
+
   const newContact = new Contact({
     name: req.body.name,
     number: req.body.number,

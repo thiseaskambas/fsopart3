@@ -9,8 +9,22 @@ mongoose
   .catch((err) => console.log(err));
 
 const contactSchema = new mongoose.Schema({
-  name: { type: String, required: [true, "contacts must have a name"] },
-  number: { type: String, required: [true, "please provide number"] },
+  name: {
+    type: String,
+    required: [true, "contacts must have a name"],
+    minLength: 3,
+  },
+  number: {
+    type: String,
+    required: [true, "please provide number"],
+    minLength: 8,
+    validate: {
+      validator: function (v) {
+        return /^(\d{2}|d{3})-[\d]+$/.test(v);
+      },
+      message: (props) => `${props.value} is not a valid phone number!`,
+    },
+  },
 });
 
 contactSchema.set("toJSON", {
